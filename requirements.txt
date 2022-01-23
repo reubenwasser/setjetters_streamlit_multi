@@ -1,3 +1,8 @@
 streamlit
 numpy
 pandas
+sqlalchemy
+pymysql
+mysql-connector-python==8.0.28
+geopandas==0.10.2
+opencage==2.0.0

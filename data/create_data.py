@@ -1,5 +1,8 @@
 import pandas as pd
-import numpy as np
+import streamlit as st
+from sqlalchemy import create_engine
+
+
 
 def create_table(n=7):
     df = pd.DataFrame({"x": range(1, 11), "y": n})
@@ -8,10 +11,16 @@ def create_table(n=7):
 
 # TODO change to DB credentials to secret management
 @st.cache(allow_output_mutation=True, hash_funcs={"_thread.RLock": lambda _: None})
-def init_connection():
-    db_connection_str = 'mysql+pymysql://admin:NumberSheep@setjetters1.c2ipvnggy6hj.us-east-2.rds.amazonaws.com/setjetters_export'
-    sql_engine = create_engine(db_connection_str)
-    return sql_engine.raw_connection()
-    # return mysql.connector.connect(user = "admin", database = "setjetters_export", host = "setjetters1.c2ipvnggy6hj.us-east-2.rds.amazonaws.com", password = "NumberSheep")
+def mySQL_query(query):
+    # Connection parameters
+    host = st.secrets.mysql.host
+    database = st.secrets.mysql.database
+    user = st.secrets.mysql.user
+    password = st.secrets.mysql.password
 
-conn = init_connection()
+    db_connection_str = f"mysql+pymysql://{user}:{password}@{host}/{database}"
+    sql_engine = create_engine(db_connection_str)
+    conn = sql_engine.raw_connection()
+    df = pd.read_sql(query, con=conn)
+    return df
+

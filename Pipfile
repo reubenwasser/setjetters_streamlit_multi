@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+streamlit = "*"
+numpy = "*"
+pandas = "*"
+mysql-connector-python = "==8.0.28"
+geopandas = "==0.10.2"
+opencage = "==2.0.0"
+protobuf = "*"
+SQLAlchemy = "*"
+PyMySQL = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
