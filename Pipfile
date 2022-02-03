@@ -13,6 +13,7 @@ opencage = "==2.0.0"
 protobuf = "*"
 SQLAlchemy = "*"
 PyMySQL = "*"
+matplotlib = "*"
 
 [dev-packages]
 
