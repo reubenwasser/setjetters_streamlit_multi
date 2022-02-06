@@ -14,6 +14,8 @@ protobuf = "*"
 SQLAlchemy = "*"
 PyMySQL = "*"
 matplotlib = "*"
+leafmap = "*"
+asyncio = "*"
 
 [dev-packages]
 
