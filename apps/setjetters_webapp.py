@@ -19,14 +19,14 @@ def app():
 
     # Connect to database and get read information to geopandas
     conn = mysql_connection()
+    # TODO: get * from scenes, movie title (from join), real location (from join) 
     query = f"SELECT * from real_locations WHERE lng OR lat IS NOT NULL;"
     df = pd.read_sql(query, con=conn)
     df = df[['name', 'lat', 'lng']]
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.lng, df.lat), crs="EPSG:4326")
 
+    # TODO: Cache map to avoid reloading on zoom 
+    # TODO: filter based on location (cities, countries)
     m = leafmap.Map()
     m.add_gdf(gdf, layer_name="real_locations")
     m.to_streamlit(width=700, height=500)
-
-
-    # st.line_chart(df)
