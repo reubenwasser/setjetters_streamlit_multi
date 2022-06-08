@@ -70,7 +70,7 @@ def geocoder(table, selector):
         
     return table[cols]
 
-st.set_page_config(page_title="Geocode", page_icon="📈")
+st.set_page_config(page_title="Geocode", page_icon="🌍🔍")
 
 st.title('Spatial Attribute Database Update')
 st.write("Uses geocoder to derive spatial attributes and then populate the setjetters database with these")

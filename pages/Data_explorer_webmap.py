@@ -7,7 +7,7 @@ import geopandas as gpd
 from data.create_data import setjettersDB_connection
 from data.create_data import setjettersDB_query
 
-st.set_page_config(page_title="Map!", page_icon="📈")
+st.set_page_config(page_title="Map!", page_icon="🌍🎥")
 
 st.title('Setjetters data explorer webmap')
 
