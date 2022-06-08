@@ -2,8 +2,9 @@ from curses import raw
 from matplotlib.pyplot import table
 import streamlit as st
 import pandas as pd
-from data.create_data import mysql_connection
 from opencage.geocoder import OpenCageGeocode
+
+from data.create_data import setjettersDB_connection
 
 
 def geocoder(table, selector):
@@ -64,74 +65,67 @@ def geocoder(table, selector):
         if "FULL_ADDRESS" in selector:
             table.loc[index, 'FULL_ADDRESS'] = results[0].get("formatted")
         
-        # st.write(f"{index} rows processed")
-
-
-        # for percent_complete in range(len(table.index)):
         progress_counter = progress_counter + progress_add
         my_bar.progress(progress_counter)
         
     return table[cols]
 
+st.set_page_config(page_title="Geocode", page_icon="📈")
 
-def app():
-    st.title('Spatial Attribute Database Update')
-    st.write("Uses geocoder to derive spatial attributes and then populate the setjetters database with these")
+st.title('Spatial Attribute Database Update')
+st.write("Uses geocoder to derive spatial attributes and then populate the setjetters database with these")
 
-    test = st.checkbox('Test (only first 10 rows)')
-    update_db = st.checkbox('Update database')
+test = st.checkbox('Test (only first 10 rows)')
+update_db = st.checkbox('Update database')
 
-    # get connection
-    conn = mysql_connection()
-    raw_conn = conn.raw_connection()
+# Get connection
+conn = setjettersDB_connection()
+raw_conn = conn.raw_connection()
 
-    # get tabke names
-    cursor=raw_conn.cursor()
-    cursor.execute("SHOW TABLES")
-    table_list = []
-    for table_name in cursor:
-        table_name_fixed = table_name[0]
-        table_list.append(table_name_fixed)
+# Get table names
+cursor=raw_conn.cursor()
+cursor.execute("SHOW TABLES")
+table_list = []
+for table_name in cursor:
+    table_name_fixed = table_name[0]
+    table_list.append(table_name_fixed)
 
-    #select table
-    select_table = st.selectbox(
-     'Which table would you like to retrieve spatial attributes for (From Opencage OSM geocoder)?',
-     table_list)
-    
-    if test == True:
-        query = f"SELECT * FROM {select_table} LIMIT 10;"
-    else:
-        query = f"SELECT * from {select_table};"
+# Select table
+select_table = st.selectbox(
+    'Which table would you like to retrieve spatial attributes for (From Opencage OSM geocoder)?',
+    table_list)
 
-    df = pd.read_sql(query, con=conn)
+if test == True:
+    query = f"SELECT * FROM {select_table} LIMIT 10;"
+else:
+    query = f"SELECT * from {select_table};"
+
+df = pd.read_sql(query, con=conn)
 
 
-    st.write(df)
+st.write(df)
 
-    # select attributes
-    options = ['FLAG', 'TIMEZONE', 'CITY', 'CITY_DISTRICT', 'CONTINENT', 'COUNTRY', 'CURRENCY', 'STATE', 'NEIGHBORHOOD', 'ROAD', 'FULL_ADDRESS']
+# select attributes
+options = ['FLAG', 'TIMEZONE', 'CITY', 'CITY_DISTRICT', 'CONTINENT', 'COUNTRY', 'CURRENCY', 'STATE', 'NEIGHBORHOOD', 'ROAD', 'FULL_ADDRESS']
+selected_options = st.multiselect(
+    'Attributes to add', options, default=options)
+selected_options.append("id")
 
-    selected_options = st.multiselect(
-     'Attributes to add', options, default=options)
+if 'get_attributes' not in st.session_state:
+    st.session_state.get_attributes_button_clicked = False
 
-    selected_options.append("id")
+if st.button('Get attributes'):
+    st.session_state.get_attributes_button_clicked = True
+    st.write('Geocoding.... This may take a while')
 
-    if 'get_attributes' not in st.session_state:
-        st.session_state.get_attributes_button_clicked = False
+    geocode_df = geocoder(df, selected_options)
+    st.write(geocode_df)
 
-    # st.button("Submit query", on_click=geocoder(df, selected_options))
-    if st.button('Get attributes'):
-        st.session_state.get_attributes_button_clicked = True
-        st.write('Geocoding.... This may take a while')
-
-        geocode_df = geocoder(df, selected_options)
-        st.write(geocode_df)
-
-        if update_db:
-            new_table_name = select_table + "_geocode"
-            
-            geocode_df.to_sql(new_table_name, conn, if_exists='replace')
-            st.write(f"{new_table_name} added to the database, join by id onto {select_table} in order to integrate spatial attributes")
+    if update_db:
+        new_table_name = select_table + "_geocode"
+        
+        geocode_df.to_sql(new_table_name, conn, if_exists='replace')
+        st.write(f"{new_table_name} added to the database, join by id onto {select_table} in order to integrate spatial attributes")
 
 
 
