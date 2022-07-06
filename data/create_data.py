@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 from sqlalchemy import create_engine
 
+@st.experimental_singleton
 @st.cache(allow_output_mutation=True, hash_funcs={"_thread.RLock": lambda _: None})
 def setjettersDB_connection():
     # Connection parameters
@@ -14,6 +15,7 @@ def setjettersDB_connection():
     sql_engine = create_engine(db_connection_str)
     return sql_engine
 
+@st.experimental_singleton
 @st.cache(allow_output_mutation=True, hash_funcs={"_thread.RLock": lambda _: None})
 def setjettersDB_query(query):
     # Connection parameters
