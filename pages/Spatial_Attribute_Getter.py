@@ -76,7 +76,8 @@ st.title('Spatial Attribute Getter')
 st.write("Uses geocoder to derive spatial attributes and then populate the setjetters database with these")
 
 test = st.checkbox('Test (only first 10 rows)')
-update_db = st.checkbox('Update database')
+# update_db = st.checkbox('Update databaseThis will create a new table in the database with then name ([TABLE]_geocode]) containing just the geocoded attributes,\
+#     it will then be up to the DB admin to join these attributes onto the original table by the id column.')
 
 # Get connection
 conn = setjettersDB_connection()
@@ -121,11 +122,10 @@ if st.button('Get attributes'):
     geocode_df = geocoder(df, selected_options)
     st.write(geocode_df)
 
-    if update_db:
-        new_table_name = select_table + "_geocode"
-        
-        geocode_df.to_sql(new_table_name, conn, if_exists='replace')
-        st.write(f"{new_table_name} added to the database, join by id onto {select_table} in order to integrate spatial attributes")
+    new_table_name = select_table + "_geocode"
+    
+    geocode_df.to_sql(new_table_name, conn, if_exists='replace')
+    st.write(f"{new_table_name} added to the database, join by id onto {select_table} in order to integrate spatial attributes")
 
 
 
